@@ -83,10 +83,21 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
     # Filling out forrest in standard case where E Prime is not empty
     elif (EPrimeNumElements > 0):
         #adding every connected component from E Prime
-
+        IndexA = ArrayEPrime[0][0] 
+        IndexB = ArrayEPrime[0][1]
+        ArrayPoints[IndexA][2] = 1
+        ArrayPoints[IndexB][2] = 1
+        for i in range(2, EPrimeNumElements):
+            IndexA = ArrayEPrime[i][0] 
+            IndexB = ArrayEPrime[i][1]
+            if():
+                ArrayPoints[IndexA][2] = 
+                ArrayPoints[IndexB][2] = 
         #adding every vertex not reached by E Prime as its own connected component
 
-
+    print("ArrayEPrime[0][0]: ", ArrayEPrime[0][0])
+    print("ArrayEPrime[0][1]: ", ArrayEPrime[0][1])
+    print("ArrayPoints[IndexA][2] :", ArrayPoints[ ArrayEPrime[0][0] ][2])
     print("VNumVertices", VNumVertices)
     print("EPrimeNumElements", EPrimeNumElements)
     print("ArrayPoints", ArrayPoints)
