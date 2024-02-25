@@ -5,6 +5,7 @@ from bisect import bisect_left
 
 def Kruskals(ArrayPoints, TreeIdentifier, Forrest, NumTreesInForrest, SortedEdges):
 
+    print("TreeIdentifier: ", TreeIdentifier) 
     AddedWeight = 0
 
     while (NumTreesInForrest > 1):
@@ -22,48 +23,53 @@ def Kruskals(ArrayPoints, TreeIdentifier, Forrest, NumTreesInForrest, SortedEdge
             #since the Sorted Edges Array is in ascending order, the first edge that spans separate components will be added to the spanning tree 
             if( (CoordinateNumA[2] < 0) and (CoordinateNumB[2] < 0) ):
                 AddedWeight = AddedWeight + SortedEdges[i].Weight
-                print("chosen edge coord: [", SortedEdges[i].CoordinateA, ",", SortedEdges[i].CoordinateB, "]")
-                print("!!!!!!!!!!!!!!!!!!!!!!!!! chosen edge weight: ", SortedEdges[i].Weight)
+                print("chosen edge coordinate: [", SortedEdges[i].CoordinateA, ",", SortedEdges[i].CoordinateB, "]")
+                print("!!!!!!!! chosen edge weight: ", SortedEdges[i].Weight)
                 SortedEdges.remove(SortedEdges[i])
                 NumTreesInForrest = NumTreesInForrest -1
-                CoordinateNumA[2] = TreeIdentifier
-                CoordinateNumB[2] = TreeIdentifier
-                Tree = []
-                Tree.insert(0, CoordinateNumA)
-                Tree.insert(0, CoordinateNumB)
-                Forrest.insert(TreeIdentifier, Tree)
+                print(" negative tree labels - non-connected isolated points ")
+                ATreeID = abs(CoordinateNumA[2])
+                CoordinateNumA[2] = abs(CoordinateNumB[2])
+                CoordinateNumB[2] = abs(CoordinateNumB[2])
+                Forrest[CoordinateNumB[2]].insert(0, CoordinateNumA)
+                Forrest[ATreeID] = [-1]
                 TreeIdentifier = TreeIdentifier + 1 
                 chosen = 1
             elif ( CoordinateNumA[2] != CoordinateNumB[2] ):
                 AddedWeight = AddedWeight+ SortedEdges[i].Weight
-                print("chosen edge: [", SortedEdges[i].CoordinateA, ",", SortedEdges[i].CoordinateB, "]")
-                print("!!!!!!!!!!!!!!!!!!!!!!!! chosen edge weight: ", SortedEdges[i].Weight)
+                print("chosen edge coordinate: [", SortedEdges[i].CoordinateA, ",", SortedEdges[i].CoordinateB, "]")
+                print("!!!!!!!!!!! chosen edge weight: ", SortedEdges[i].Weight)
                 SortedEdges.remove(SortedEdges[i])
                 NumTreesInForrest = NumTreesInForrest -1
                 chosen = 1
                 #following conditional logic to update tree labels and forrest
                 if ( (CoordinateNumA[2] < 0) and  (CoordinateNumB[2] > -1) ):
+                    print(" if only A's tree label is negative ")
                     ATreeID = abs(CoordinateNumA[2])
                     CoordinateNumA[2] = CoordinateNumB[2] 
                     Forrest[CoordinateNumB[2]].insert(0, Forrest[ATreeID][0])
                     Forrest[ATreeID]= [-1]
                 elif ( (CoordinateNumB[2] < 0) and  (CoordinateNumA[2] > -1)  ):
                     BTreeID = abs(CoordinateNumB[2])
+                    print(" if only B's tree label is negative ")
                     CoordinateNumB[2] = CoordinateNumA[2] 
                     Forrest[CoordinateNumA[2]].insert(0, Forrest[BTreeID][0])
                     Forrest[BTreeID]= [-1]
                 else:
                     # #keeping IndexA's TreeIdentifer, adding IndexB to IndexA's tree, removing IndexB from its own tree
-                    BTreeID = CoordinateNumB[2]
+                    BTreeID = abs(CoordinateNumB[2])
                     # CoordinateNumB[2] = CoordinateNumA[2] 
                     # Forrest[CoordinateNumA[2]].insert(0, CoordinateNumA)
                     # Forrest[BTreeID].remove(CoordinateNumB[2])
 
                     # for every element in IndexB's former tree, add to IndexA's tree, update the tree label, and remove from former tree
-                    while ( len(Forrest[ BTreeID ]) > 0 ):
+                    for i in range (len(Forrest[ BTreeID ])):
+                        print(" merge trees")
                         Forrest[ BTreeID ][0][2] = CoordinateNumA[2] 
                         Forrest[ CoordinateNumA[2] ].insert(0, Forrest[ BTreeID ][0])
                         Forrest[ BTreeID ].remove(Forrest[ BTreeID ][0])
+                    
+                    Forrest[BTreeID]= [-1]
             else:
                 i = i + 1
         
@@ -178,11 +184,11 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
     # Filling out forrest in edge case where E Prime is empty
     if (EPrimeNumElements == 0):
         for i in range(0, VNumVertices):
-            TreeIdentifier = TreeIdentifier + 1
             ArrayPoints[i][2] = -1 * TreeIdentifier
             Tree = [ArrayPoints[i]]
             Forrest.insert(i, Tree)
             NumTreesInForrest = NumTreesInForrest + 1
+            TreeIdentifier = TreeIdentifier + 1
             print("edge case where E Prime is empty")
     
     # Filling out forrest in standard case where E Prime is not empty by inserting every connected component from E Prime

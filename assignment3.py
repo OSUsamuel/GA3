@@ -20,12 +20,11 @@ def Kruskals(ArrayPoints, TreeIdentifier, Forrest, NumTreesInForrest, SortedEdge
                 AddedWeight = AddedWeight + SortedEdges[i].Weight
                 SortedEdges.remove(SortedEdges[i])
                 NumTreesInForrest = NumTreesInForrest -1
-                CoordinateNumA[2] = TreeIdentifier
-                CoordinateNumB[2] = TreeIdentifier
-                Tree = []
-                Tree.insert(0, CoordinateNumA)
-                Tree.insert(0, CoordinateNumB)
-                Forrest.insert(TreeIdentifier, Tree)
+                ATreeID = abs(CoordinateNumA[2])
+                CoordinateNumA[2] = abs(CoordinateNumB[2])
+                CoordinateNumB[2] = abs(CoordinateNumB[2])
+                Forrest[CoordinateNumB[2]].insert(0, CoordinateNumA)
+                Forrest[ATreeID] = [-1]
                 TreeIdentifier = TreeIdentifier + 1 
                 chosen = 1
             elif ( CoordinateNumA[2] != CoordinateNumB[2] ):
@@ -46,16 +45,15 @@ def Kruskals(ArrayPoints, TreeIdentifier, Forrest, NumTreesInForrest, SortedEdge
                     Forrest[BTreeID]= [-1]
                 else:
                     # #keeping IndexA's TreeIdentifer, adding IndexB to IndexA's tree, removing IndexB from its own tree
-                    BTreeID = CoordinateNumB[2]
-                    # CoordinateNumB[2] = CoordinateNumA[2] 
-                    # Forrest[CoordinateNumA[2]].insert(0, CoordinateNumA)
-                    # Forrest[BTreeID].remove(CoordinateNumB[2])
+                    BTreeID = abs(CoordinateNumB[2])
 
                     # for every element in IndexB's former tree, add to IndexA's tree, update the tree label, and remove from former tree
-                    while ( len(Forrest[ BTreeID ]) > 0 ):
+                    for i in range (len(Forrest[ BTreeID ])):
                         Forrest[ BTreeID ][0][2] = CoordinateNumA[2] 
                         Forrest[ CoordinateNumA[2] ].insert(0, Forrest[ BTreeID ][0])
                         Forrest[ BTreeID ].remove(Forrest[ BTreeID ][0])
+                    
+                    Forrest[BTreeID]= [-1]
             else:
                 i = i + 1
 
@@ -63,7 +61,7 @@ def Kruskals(ArrayPoints, TreeIdentifier, Forrest, NumTreesInForrest, SortedEdge
         
 
 def minimum_cost_connecting_edges(input_file_path, output_file_path):
-    
+
     with open(input_file_path, 'r') as file:
         # reading input files for coordinate point data in line 1
         line1 = file.readline()
@@ -112,6 +110,7 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
             YCoordinateOfB = ArrayPoints[ArrayEPrime[e][1] - 1][1]
             ManhatanDistance = int(math.dist([XCoordinateOfA],[XCoordinateOfB]) + math.dist([YCoordinateOfA],[YCoordinateOfB]))
             ArrayEPrime[e][2]= ManhatanDistance
+    print("ArrayEPrime", ArrayEPrime) 
 
     #Creating Class Edge to encapsulate each possible edge's coordinate and weight 
     class Edge: 
@@ -158,12 +157,12 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
     # Filling out forrest in edge case where E Prime is empty
     if (EPrimeNumElements == 0):
         for i in range(0, VNumVertices):
-            TreeIdentifier = TreeIdentifier + 1
             ArrayPoints[i][2] = -1 * TreeIdentifier
             Tree = [ArrayPoints[i]]
             Forrest.insert(i, Tree)
             NumTreesInForrest = NumTreesInForrest + 1
-
+            TreeIdentifier = TreeIdentifier + 1
+    
     # Filling out forrest in standard case where E Prime is not empty by inserting every connected component from E Prime
     elif (EPrimeNumElements > 0):
 
@@ -180,6 +179,7 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
 
             #if neither of the edge's points have been added to a tree, add them to a new tree
             if( (ArrayPoints[IndexA][2] < 0) and (ArrayPoints[IndexB][2] < 0) ):
+
                 ArrayPoints[IndexA][2] = TreeIdentifier
                 ArrayPoints[IndexB][2] = TreeIdentifier
                 Tree = []
@@ -203,6 +203,7 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
 
             #if the both of the edge's points have been added to different trees, merge the trees.
             elif( ((ArrayPoints[IndexA][2] != -1) and (ArrayPoints[IndexB][2] != -1) ) and (ArrayPoints[IndexA][2] != ArrayPoints[IndexB][2]) ):
+
                 #keeping IndexA's TreeIdentifer, adding IndexB to IndexA's tree, removing IndexB from its own tree
                 BTreeID = ArrayPoints[IndexB][2] 
                 ArrayPoints[IndexB][2] = ArrayPoints[IndexA][2]
@@ -228,13 +229,14 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
                 Forrest.insert(i, Tree)
                 NumTreesInForrest = NumTreesInForrest + 1
                 TreeIdentifier = TreeIdentifier + 1
-
+    
     # now we have the connected components from E Prime, and the remaining vertices not reached by E Prime each as their own components
     # from here we can implement Kruskal's Algorithm
+    print("Start Kruskals")
     WeightEAsterix= Kruskals(ArrayPoints, TreeIdentifier, Forrest, NumTreesInForrest, SortedEdges)
-
+            
     result = WeightEAsterix
-    
+
     with open(output_file_path, 'w') as output_file:
         output_file.write(f"{result}\n")
 
