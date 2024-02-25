@@ -20,7 +20,21 @@ def Kruskals(ArrayPoints, TreeIdentifier, Forrest, NumTreesInForrest, SortedEdge
             print("Tree ID @ CoordinateNumB[2]: ", CoordinateNumB[2])
 
             #since the Sorted Edges Array is in ascending order, the first edge that spans separate components will be added to the spanning tree 
-            if ( CoordinateNumA[2] != CoordinateNumB[2] ):
+            if( (CoordinateNumA[2] < 0) and (CoordinateNumB[2] < 0) ):
+                AddedWeight = AddedWeight + SortedEdges[i].Weight
+                print("chosen edge coord: [", SortedEdges[i].CoordinateA, ",", SortedEdges[i].CoordinateB, "]")
+                print("!!!!!!!!!!!!!!!!!!!!!!!!! chosen edge weight: ", SortedEdges[i].Weight)
+                SortedEdges.remove(SortedEdges[i])
+                NumTreesInForrest = NumTreesInForrest -1
+                CoordinateNumA[2] = TreeIdentifier
+                CoordinateNumB[2] = TreeIdentifier
+                Tree = []
+                Tree.insert(0, CoordinateNumA)
+                Tree.insert(0, CoordinateNumB)
+                Forrest.insert(TreeIdentifier, Tree)
+                TreeIdentifier = TreeIdentifier + 1 
+                chosen = 1
+            elif ( CoordinateNumA[2] != CoordinateNumB[2] ):
                 AddedWeight = AddedWeight+ SortedEdges[i].Weight
                 print("chosen edge: [", SortedEdges[i].CoordinateA, ",", SortedEdges[i].CoordinateB, "]")
                 print("!!!!!!!!!!!!!!!!!!!!!!!! chosen edge weight: ", SortedEdges[i].Weight)
@@ -28,12 +42,12 @@ def Kruskals(ArrayPoints, TreeIdentifier, Forrest, NumTreesInForrest, SortedEdge
                 NumTreesInForrest = NumTreesInForrest -1
                 chosen = 1
                 #following conditional logic to update tree labels and forrest
-                if ( CoordinateNumA[2] < 0 ):
+                if ( (CoordinateNumA[2] < 0) and  (CoordinateNumB[2] > -1) ):
                     ATreeID = abs(CoordinateNumA[2])
                     CoordinateNumA[2] = CoordinateNumB[2] 
                     Forrest[CoordinateNumB[2]].insert(0, Forrest[ATreeID][0])
                     Forrest[ATreeID]= [-1]
-                elif ( CoordinateNumB[2] < 0 ):
+                elif ( (CoordinateNumB[2] < 0) and  (CoordinateNumA[2] > -1)  ):
                     BTreeID = abs(CoordinateNumB[2])
                     CoordinateNumB[2] = CoordinateNumA[2] 
                     Forrest[CoordinateNumA[2]].insert(0, Forrest[BTreeID][0])
@@ -50,21 +64,6 @@ def Kruskals(ArrayPoints, TreeIdentifier, Forrest, NumTreesInForrest, SortedEdge
                         Forrest[ BTreeID ][0][2] = CoordinateNumA[2] 
                         Forrest[ CoordinateNumA[2] ].insert(0, Forrest[ BTreeID ][0])
                         Forrest[ BTreeID ].remove(Forrest[ BTreeID ][0])
-
-            elif( (CoordinateNumA[2] < 0) and (CoordinateNumB[2] < 0) ):
-                AddedWeight = AddedWeight + SortedEdges[i].Weight
-                print("chosen edge coord: [", SortedEdges[i].CoordinateA, ",", SortedEdges[i].CoordinateB, "]")
-                print("!!!!!!!!!!!!!!!!!!!!!!!!! chosen edge weight: ", SortedEdges[i].Weight)
-                SortedEdges.remove(SortedEdges[i])
-                NumTreesInForrest = NumTreesInForrest -1
-                CoordinateNumA[2] = TreeIdentifier
-                CoordinateNumB[2] = TreeIdentifier
-                Tree = []
-                Tree.insert(0, CoordinateNumA)
-                Tree.insert(0, CoordinateNumB)
-                Forrest.insert(TreeIdentifier, Tree)
-                TreeIdentifier = TreeIdentifier + 1 
-                chosen = 1
             else:
                 i = i + 1
         
