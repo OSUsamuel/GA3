@@ -28,11 +28,16 @@ def Kruskals(ArrayPoints, TreeIdentifier, Forrest, NumTreesInForrest, SortedEdge
                 NumTreesInForrest = NumTreesInForrest -1
                 chosen = 1
                 #following conditional logic to update tree labels and forrest
-                if ( CoordinateNumA[2] == -1 ):
+                if ( CoordinateNumA[2] < 0 ):
+                    ATreeID = abs(CoordinateNumA[2])
                     CoordinateNumA[2] = CoordinateNumB[2] 
-                    
-                elif ( CoordinateNumB[2] == -1 ):
+                    Forrest[CoordinateNumB[2]].insert(0, Forrest[ATreeID][0])
+                    Forrest[ATreeID]= [-1]
+                elif ( CoordinateNumB[2] < 0 ):
+                    BTreeID = abs(CoordinateNumB[2])
                     CoordinateNumB[2] = CoordinateNumA[2] 
+                    Forrest[CoordinateNumA[2]].insert(0, Forrest[BTreeID][0])
+                    Forrest[BTreeID]= [-1]
                 else:
                     # #keeping IndexA's TreeIdentifer, adding IndexB to IndexA's tree, removing IndexB from its own tree
                     BTreeID = CoordinateNumB[2]
@@ -46,7 +51,7 @@ def Kruskals(ArrayPoints, TreeIdentifier, Forrest, NumTreesInForrest, SortedEdge
                         Forrest[ CoordinateNumA[2] ].insert(0, Forrest[ BTreeID ][0])
                         Forrest[ BTreeID ].remove(Forrest[ BTreeID ][0])
 
-            elif( (CoordinateNumA[2] == -1) and (CoordinateNumB[2] == -1) ):
+            elif( (CoordinateNumA[2] < 0) and (CoordinateNumB[2] < 0) ):
                 AddedWeight = AddedWeight + SortedEdges[i].Weight
                 print("chosen edge coord: [", SortedEdges[i].CoordinateA, ",", SortedEdges[i].CoordinateB, "]")
                 print("!!!!!!!!!!!!!!!!!!!!!!!!! chosen edge weight: ", SortedEdges[i].Weight)
@@ -169,13 +174,16 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
     # Creating a variable to store the running weight of the connected componenets in our forrest
     WeightEPrime = 0
 
+    TreeIdentifier = 0
+
     # Filling out forrest in edge case where E Prime is empty
     if (EPrimeNumElements == 0):
         for i in range(0, VNumVertices):
+            TreeIdentifier = TreeIdentifier + 1
+            ArrayPoints[i][2] = -1 * TreeIdentifier
             Tree = [ArrayPoints[i]]
             Forrest.insert(i, Tree)
             NumTreesInForrest = NumTreesInForrest + 1
-            TreeIdentifier = 0
             print("edge case where E Prime is empty")
     
     # Filling out forrest in standard case where E Prime is not empty by inserting every connected component from E Prime
@@ -185,7 +193,6 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
         print("ArrayPoints", ArrayPoints)
 
         # visit each edge in E Prime and update its points' tree values accordingly
-        TreeIdentifier = 0
         for i in range(0, EPrimeNumElements):
 
             WeightEPrime = WeightEPrime + ArrayEPrime[i][2]
@@ -204,7 +211,7 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
             print("ArrayPoints[IndexB]: ", ArrayPoints[IndexB])
 
             #if neither of the edge's points have been added to a tree, add them to a new tree
-            if( (ArrayPoints[IndexA][2] == -1) and (ArrayPoints[IndexB][2] == -1) ):
+            if( (ArrayPoints[IndexA][2] < 0) and (ArrayPoints[IndexB][2] < 0) ):
                 print("adding points to new tree")
                 ArrayPoints[IndexA][2] = TreeIdentifier
                 ArrayPoints[IndexB][2] = TreeIdentifier
@@ -220,14 +227,14 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
 
             # if the IndexA point has been added to a tree, but the IndexB point has not, add the IndexB point
             # to the IndexA point's tree
-            elif( (ArrayPoints[IndexA][2] != -1) and (ArrayPoints[IndexB][2] == -1) ):
+            elif( (ArrayPoints[IndexA][2] > -1) and (ArrayPoints[IndexB][2] < 0) ):
                 print("adding B to A's tree")
                 ArrayPoints[IndexB][2] = ArrayPoints[IndexA][2]
                 Forrest[ ArrayPoints[IndexA][2] ].insert(len(Forrest[ ArrayPoints[IndexA][2] ]), ArrayPoints[IndexB])
 
             # if the IndexB point has been added to a tree, but the IndexA point has not, add the IndexA point 
             # to the IndexB point's tree 
-            elif( (ArrayPoints[IndexA][2] == -1) and (ArrayPoints[IndexB][2] != -1) ):
+            elif( (ArrayPoints[IndexA][2] < 0) and (ArrayPoints[IndexB][2] > -1) ):
                 print("adding A to B's tree")
                 ArrayPoints[IndexA][2] = ArrayPoints[IndexB][2]
                 Forrest[ ArrayPoints[IndexB][2] ].insert(len(Forrest[ ArrayPoints[IndexB][2] ]), ArrayPoints[IndexA])
@@ -270,9 +277,11 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
         # to the forrest as their own connected components. 
         for i in range(0, len(ArrayPoints)):
             if (ArrayPoints[i][2] == -1):
+                ArrayPoints[i][2] = -1 * TreeIdentifier
                 Tree = [ArrayPoints[i]]
                 Forrest.insert(i, Tree)
                 NumTreesInForrest = NumTreesInForrest + 1
+                TreeIdentifier = TreeIdentifier + 1
     
     print("NumTreesInForrest: ", NumTreesInForrest)
     for e in range(len(Forrest)):
