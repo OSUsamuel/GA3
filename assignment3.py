@@ -27,15 +27,24 @@ def Kruskals(ArrayPoints, TreeIdentifier, Forrest, NumTreesInForrest, SortedEdge
                 SortedEdges.remove(SortedEdges[i])
                 NumTreesInForrest = NumTreesInForrest -1
                 chosen = 1
-                #following conditional logic to update tree labels
+                #following conditional logic to update tree labels and forrest
                 if ( CoordinateNumA[2] == -1 ):
                     CoordinateNumA[2] = CoordinateNumB[2] 
+                    
                 elif ( CoordinateNumB[2] == -1 ):
                     CoordinateNumB[2] = CoordinateNumA[2] 
                 else:
-                    #keeping IndexA's TreeIdentifer, adding IndexB to IndexA's tree, removing IndexB from its own tree
-                    CoordinateNumB[2] = CoordinateNumA[2] 
+                    # #keeping IndexA's TreeIdentifer, adding IndexB to IndexA's tree, removing IndexB from its own tree
+                    BTreeID = CoordinateNumB[2]
+                    # CoordinateNumB[2] = CoordinateNumA[2] 
+                    # Forrest[CoordinateNumA[2]].insert(0, CoordinateNumA)
+                    # Forrest[BTreeID].remove(CoordinateNumB[2])
 
+                    # for every element in IndexB's former tree, add to IndexA's tree, update the tree label, and remove from former tree
+                    while ( len(Forrest[ BTreeID ]) > 0 ):
+                        Forrest[ BTreeID ][0][2] = CoordinateNumA[2] 
+                        Forrest[ CoordinateNumA[2] ].insert(0, Forrest[ BTreeID ][0])
+                        Forrest[ BTreeID ].remove(Forrest[ BTreeID ][0])
 
             elif( (CoordinateNumA[2] == -1) and (CoordinateNumB[2] == -1) ):
                 AddedWeight = AddedWeight + SortedEdges[i].Weight
@@ -45,12 +54,21 @@ def Kruskals(ArrayPoints, TreeIdentifier, Forrest, NumTreesInForrest, SortedEdge
                 NumTreesInForrest = NumTreesInForrest -1
                 CoordinateNumA[2] = TreeIdentifier
                 CoordinateNumB[2] = TreeIdentifier
-                Tree = [[CoordinateNumA], [CoordinateNumB]]
+                Tree = []
+                Tree.insert(0, CoordinateNumA)
+                Tree.insert(0, CoordinateNumB)
                 Forrest.insert(TreeIdentifier, Tree)
                 TreeIdentifier = TreeIdentifier + 1 
                 chosen = 1
             else:
                 i = i + 1
+        
+        print("NumTreesInForrest: ", NumTreesInForrest)
+
+        for e in range(len(Forrest)):
+            print("Tree in Forrest: ", Forrest[e])
+            
+
 
 
 
@@ -257,7 +275,7 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
                 NumTreesInForrest = NumTreesInForrest + 1
     
     print("NumTreesInForrest: ", NumTreesInForrest)
-    for e in range(NumTreesInForrest):
+    for e in range(len(Forrest)):
         print("Tree in Forrest: ", Forrest[e])
 
     # now we have the connected components from E Prime, and the remaining vertices not reached by E Prime each as their own components
