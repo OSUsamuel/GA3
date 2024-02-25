@@ -79,20 +79,38 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
     # Filling out forrest in edge case where E Prime is empty
     if (EPrimeNumElements == 0):
         for i in range(0, VNumVertices):
-            Forrest.insert(ArrayPoints[i])
-    # Filling out forrest in standard case where E Prime is not empty
+            Tree = [ArrayPoints[i]]
+            Forrest.insert(Tree)
+
+    # Filling out forrest in standard case where E Prime is not empty by inserting every connected component from E Prime
     elif (EPrimeNumElements > 0):
-        #adding every connected component from E Prime
+        # base case. adding the two vertices from the first edge of E Prime to a new tree
         IndexA = ArrayEPrime[0][0] 
         IndexB = ArrayEPrime[0][1]
         ArrayPoints[IndexA][2] = 1
         ArrayPoints[IndexB][2] = 1
-        for i in range(2, EPrimeNumElements):
+        Tree = [ArrayPoints[IndexA]], [ArrayPoints[IndexB]]
+        Forrest.insert(Tree)
+
+        # visit each edge in E Prime and update its points' tree values accordingly
+        TreeIdentifier = 1
+        for i in range(1, EPrimeNumElements):
             IndexA = ArrayEPrime[i][0] 
             IndexB = ArrayEPrime[i][1]
-            if():
-                ArrayPoints[IndexA][2] = 
-                ArrayPoints[IndexB][2] = 
+            #if neither of the edge's points have been added to a tree, add them to a new tree
+            if( (ArrayPoints[IndexA][2] == -1) and (ArrayPoints[IndexB][2] == -1) )
+                ArrayPoints[IndexA][2] = TreeIdentifier
+                ArrayPoints[IndexB][2] = TreeIdentifier
+                TreeIdentifier = TreeIdentifier + 1 
+            #if the IndexA point has been added to a tree, but the other point has not, add other point to the IndexA point's tree
+            elif( (ArrayPoints[IndexA][2] == -1) and (ArrayPoints[IndexB][2] != -1) )
+                ArrayPoints[IndexA][2] = ArrayPoints[IndexB][2]
+            #if the IndexB point has been added to a tree, but the other point has not, add other point to the IndexB point's tree
+            elif( (ArrayPoints[IndexA][2] != -1) and (ArrayPoints[IndexB][2] == -1) )
+                ArrayPoints[IndexB][2] = ArrayPoints[IndexA][2]
+            elif( ((ArrayPoints[IndexA][2] != -1) and (ArrayPoints[IndexB][2] != -1) ) and (ArrayPoints[IndexA][2] != ArrayPoints[IndexB][2]) ):
+
+
         #adding every vertex not reached by E Prime as its own connected component
 
     print("ArrayEPrime[0][0]: ", ArrayEPrime[0][0])
