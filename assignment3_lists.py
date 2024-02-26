@@ -3,6 +3,10 @@ import re
 import sys
 from bisect import bisect_left
 
+def display_edge(EdgeClassObject):
+    print("          Edge -- (CoordinateA)(CoordinateB)[Weight]: ", EdgeClassObject.CoordinateA, EdgeClassObject.CoordinateB, " [", EdgeClassObject.Weight, "]")
+
+
 def Kruskals(ArrayPoints, TreeIdentifier, Forrest, NumTreesInForrest, SortedEdges):
 
     AddedWeight = 0
@@ -144,6 +148,8 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
         SortedEdgeWeights.insert(bisect_left(SortedEdgeWeights, Edges[i].Weight), Edges[i].Weight)
         SortedEdges.insert(bisect_left(SortedEdgeWeights, Edges[i].Weight), Edges[i])
 
+    for e in range(len(SortedEdges)):
+        display_edge(SortedEdges[e])
     
     # Creating a container to store connected components of our graph.
     Forrest = []
