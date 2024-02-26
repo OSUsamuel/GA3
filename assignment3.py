@@ -13,7 +13,7 @@ How to use this python file from the terminal:
     Please note that this command may need to be modified if your input or output files live in different
     levels of the directory than the assignment3_vtests.py file.
 
-    python3 assignment3_vtests.py input_file.txt output_file.txt  
+    python3 assignment3.py input_file.txt output_file.txt  
     
 Abstract of Algorithm:
     Step 1)     Read the input file, extract coordinate and edge data into:
