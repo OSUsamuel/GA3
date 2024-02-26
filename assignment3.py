@@ -232,7 +232,7 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
     
     # now we have the connected components from E Prime, and the remaining vertices not reached by E Prime each as their own components
     # from here we can implement Kruskal's Algorithm
-    print("Start Kruskals")
+    # print("Start Kruskals")
     WeightEAsterix= Kruskals(ArrayPoints, TreeIdentifier, Forrest, NumTreesInForrest, SortedEdges)
             
     result = WeightEAsterix
