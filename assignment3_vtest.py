@@ -11,10 +11,18 @@ so that you may see a visual representation of the algorithm's mechanisms printe
 How to use for visual representation:
     Run the code directly in the terminal with the following command, where input_file.txt is the actual
     name of your input file and output_file.txt is the actual name of your output file.
-    Please note that this command may need to be modified if your input or output files live in different
-    levels of the directory than the assignment3_vtests.py file.
+    ** Please note that this command may need to be modified if your input or output files live in different
+    levels of the directory than the assignment3_vtests.py file. **
 
-    python3 assignment3_vtests.py input_file.txt output_file.txt  
+        python3 assignment3_vtest.py input_file.txt output_file.txt 
+
+    From the main branch in github:
+
+        python3 assignment3_vtest.py test_cases/GA3S1.txt test_cases/output_GA3S1.txt
+        python3 assignment3_vtest.py test_cases/GA3S2.txt test_cases/output_GA3S2.txt
+        python3 assignment3_vtest.py test_cases/GA3S3.txt test_cases/output_GA3S3.txt
+        python3 assignment3_vtest.py test_cases/GA3S4.txt test_cases/output_GA3S4.txt
+
     
 Abstract of Algorithm:
     Step 1)     Read the input file, extract coordinate and edge data into:
