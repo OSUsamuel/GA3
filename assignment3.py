@@ -88,10 +88,12 @@ class UnionFind:
 
         if self.size[root1[2]] > self.size[root2[2]]:
             self.parent[root2[2]] = root1
-            self.size[root1[2]] += 1
+            self.size[root1[2]] = self.size[root1[2]] + self.size[root2[2]]
+            self.size[root2[2]] = int(0)
         else:
             self.parent[root1[2]] = root2
-            self.size[root2[2]] += 1
+            self.size[root2[2]] = self.size[root2[2]] + self.size[root1[2]]
+            self.size[root1[2]] = int(0)
         
         self.count -= 1
 

@@ -68,7 +68,7 @@ class UnionFind:
     def __init__(self, numOfElements, arrayOfElements):
         self.parent = self.makeSet(numOfElements, arrayOfElements)
         self.value = self.makeSet(numOfElements, arrayOfElements)
-        self.size = [1]*numOfElements
+        self.size = ["   1   "]*numOfElements
         self.count = numOfElements
     
     def makeSet(self, numOfElements, arrayOfElements):
@@ -101,12 +101,14 @@ class UnionFind:
             return False
 
         # print("merge")
-        if self.size[root1[2]] > self.size[root2[2]]:
+        if int(self.size[root1[2]]) > int(self.size[root2[2]]):
             self.parent[root2[2]] = root1
-            self.size[root1[2]] += 1
+            self.size[root1[2]] = "   " + str(int(self.size[root1[2]]) + int(self.size[root2[2]])) + "   "
+            self.size[root2[2]] = "   " + str(int(self.size[root2[2]]) - int(self.size[root2[2]])) + "   "
         else:
             self.parent[root1[2]] = root2
-            self.size[root2[2]] += 1
+            self.size[root2[2]] = "   " + str(int(self.size[root2[2]]) + int(self.size[root1[2]])) + "   "
+            self.size[root1[2]] = "   " + str(int(self.size[root1[2]]) - int(self.size[root1[2]])) + "   "
         
         self.count -= 1
 
@@ -124,10 +126,10 @@ def display_all_edges(EdgeList):
 # helper function to display edge data encapsulated in class
 def display_Forrest(Forrest):
     print("     _____Forrest_____________________________________________________________________________________________ ")
-    print("          Parent :", Forrest.parent)
-    print("          Value  :", Forrest.value)
-    print("          Size   :", Forrest.size)
-    print("          Count  :", Forrest.count)
+    print("          Parent of Vertex in Disjoint Set       :", Forrest.parent)
+    print("          Coordinate Value of Vertex             :", Forrest.value)
+    print("          Size of Tree/Set with Vertex as Root   :", Forrest.size)
+    print("          Number of Trees/Sets in Forrest        :", Forrest.count)
 
 # main function
 def minimum_cost_connecting_edges(input_file_path, output_file_path):
@@ -162,10 +164,10 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
     # the two numbers of each coordinate, and a third collumn for the point's
     # index number in ArrayPoints
     PointStringArray = re.findall('(\\-?\\d+,\\-?\\d+)', ArrayPointstxt)
-    print(ArrayPointstxt)
+    # print(ArrayPointstxt)
     VNumVertices = ( ArrayPointstxt.count(",") // 2 ) + 1
     ArrayPoints = [[-1 for column in range(3)] for row in range(VNumVertices)]
-    print("VNumVertices", VNumVertices)
+    # print("VNumVertices", VNumVertices)
     for p in range(0, VNumVertices):
 
         # print("p in 0 to VNumVertices", p)
@@ -194,10 +196,10 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
         EPrimeStringArray = re.findall('(\\-?\\d+,\\-?\\d+)', ArrayEPrimetxt)
         EPrimeNumElements = ( ArrayEPrimetxt.count(",") // 2 ) +1
         EPrimeEdges = [-1 for edge in range(EPrimeNumElements)]
-        print(ArrayEPrimetxt)
+        # print(ArrayEPrimetxt)
 
         for e in range(0, EPrimeNumElements):
-            print("e in 0 to EPrimeNumElements: ", e)
+            # print("e in 0 to EPrimeNumElements: ", e)
             CoordinateE = EPrimeStringArray[e].split(',')
             CoordinateAIdx = int(CoordinateE[0])-1
             CoordinateBIdx = int(CoordinateE[1])-1
@@ -278,6 +280,8 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
             print("         E Prime is empty.")
             print("")
     for e in range(EPrimeNumElements):
+        print("     Edge in E' (Coordinate)(Coordinate)[Weight]: ", SortedEdges[e].CoordinateA, SortedEdges[e].CoordinateB, " [", SortedEdges[e].Weight, "]")
+        print("     Forrest Updated with Edge in E':")
         Forrest.union(EPrimeEdges[e].CoordinateA, EPrimeEdges[e].CoordinateB)
         display_Forrest(Forrest)
         print("")
@@ -304,11 +308,8 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
             # To represent that the edge is being included in E*, add the edge's weight to WeightEAsterix.
             WeightEAsterix = WeightEAsterix + SortedEdges[e].Weight
             print("     Found Edge (Coordinate)(Coordinate)[Weight]: ", SortedEdges[e].CoordinateA, SortedEdges[e].CoordinateB, " [", SortedEdges[e].Weight, "]")
-            print("")
             print("     New Weight of E*:", WeightEAsterix)
-            print("")
             print("     Forrest Updated with New E* Edge:")
-            print("")
             display_Forrest(Forrest)
             print("")
 
