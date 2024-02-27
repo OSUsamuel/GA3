@@ -3,64 +3,105 @@ import re
 import sys
 from bisect import bisect_left
 
-def Kruskals(ArrayPoints, TreeIdentifier, Forrest, NumTreesInForrest, SortedEdges):
 
-    AddedWeight = 0
+"""
+This file is the Python deliverable for our GA3 submission.
 
-    while (NumTreesInForrest > 1):
-        chosen = 0
-        i = 0 
-        while (chosen == 0):
-            
-            CoordinateNumA = SortedEdges[i].CoordinateA
-            CoordinateNumB = SortedEdges[i].CoordinateB
+How to use this python file from the terminal:
+    Run the code directly in the terminal with the following command, where input_file.txt is the actual
+    name of your input file and output_file.txt is the actual name of your output file.
+    ** Please note that this command may need to be modified if your input or output files live in different
+    levels of the directory than the assignment3_vtests.py file. **
 
-            #since the Sorted Edges Array is in ascending order, the first edge that spans separate components will be added to the spanning tree 
-            if( (CoordinateNumA[2] < 0) and (CoordinateNumB[2] < 0) ):
-                AddedWeight = AddedWeight + SortedEdges[i].Weight
-                SortedEdges.remove(SortedEdges[i])
-                NumTreesInForrest = NumTreesInForrest -1
-                ATreeID = abs(CoordinateNumA[2])
-                CoordinateNumA[2] = abs(CoordinateNumB[2])
-                CoordinateNumB[2] = abs(CoordinateNumB[2])
-                Forrest[CoordinateNumB[2]].insert(0, CoordinateNumA)
-                Forrest[ATreeID] = [-1]
-                TreeIdentifier = TreeIdentifier + 1 
-                chosen = 1
-            elif ( CoordinateNumA[2] != CoordinateNumB[2] ):
-                AddedWeight = AddedWeight+ SortedEdges[i].Weight
-                SortedEdges.remove(SortedEdges[i])
-                NumTreesInForrest = NumTreesInForrest -1
-                chosen = 1
-                #following conditional logic to update tree labels and forrest
-                if ( (CoordinateNumA[2] < 0) and  (CoordinateNumB[2] > -1) ):
-                    ATreeID = abs(CoordinateNumA[2])
-                    CoordinateNumA[2] = CoordinateNumB[2] 
-                    Forrest[CoordinateNumB[2]].insert(0, Forrest[ATreeID][0])
-                    Forrest[ATreeID]= [-1]
-                elif ( (CoordinateNumB[2] < 0) and  (CoordinateNumA[2] > -1)  ):
-                    BTreeID = abs(CoordinateNumB[2])
-                    CoordinateNumB[2] = CoordinateNumA[2] 
-                    Forrest[CoordinateNumA[2]].insert(0, Forrest[BTreeID][0])
-                    Forrest[BTreeID]= [-1]
-                else:
-                    # #keeping IndexA's TreeIdentifer, adding IndexB to IndexA's tree, removing IndexB from its own tree
-                    BTreeID = abs(CoordinateNumB[2])
+    python3 assignment3.py input_file.txt output_file.txt  
+    
+Abstract of Algorithm:
+    Step 1)     Read the input file, extract coordinate and edge data into:
+                    - an array of coordinates (ArrayPoints)
+                    - an array of all edges sorted by weight (SortedEdges)
+                    - an array of edges from E Prime. (EPrimeEdges)
 
-                    # for every element in IndexB's former tree, add to IndexA's tree, update the tree label, and remove from former tree
-                    for i in range (len(Forrest[ BTreeID ])):
-                        Forrest[ BTreeID ][0][2] = CoordinateNumA[2] 
-                        Forrest[ CoordinateNumA[2] ].insert(0, Forrest[ BTreeID ][0])
-                        Forrest[ BTreeID ].remove(Forrest[ BTreeID ][0])
+    Step 2)     Represent every coordinate in the array of coordinates (ArrayPoints) as a its own disjoint 
+                set. Create an variable (Forrest) to hold the UnionFind structure of all disjoint sets.
+    
                     
-                    Forrest[BTreeID]= [-1]
-            else:
-                i = i + 1
+    Step 3)     Organize coordinates reached by E Prime edges (if any) into disjoint sets of coordinates, 
+                such that all coordinates in the same set are connected by edges in E Prime. 
+                To do this, iterate through the array of edges from E Prime (EPrimeEdges). 
+                    -   For each edge, check if its two coordinates are in different sets by comparing the 
+                        root coordinates of their disjoint sets. 
+                    -   If the edge's two coordinates are in different sets consider the edge to be part 
+                        E* preform a union operation on the two disjoint sets of the edge's coordinates, 
+                        to reflect that they are connected by an E' input edge.
+    
+    Step 4)     Find edges that belong in E*, where E* is a subset of all edges that will span all 
+                coordinates in complement with E'. 
+                To do this, iterate through the sorted array of sorted edges (SortedEdges), starting with
+                the smallest element in SortedEdges, until all disjoint sets have been unioned into a single
+                set of all coordinates.
+                    -   Create a variable (WeightEAsterix) to hold the cumulitive weight of all E* edges found. 
+                    -   For each edge, check if its two coordinates are in different sets by comparing the
+                        root coordinates of their disjoint sets.
+                    -   If the edge's two coordinates are in different sets consider the edge to be part E*. 
+                        To represent that the edge is being included in E*, preform a union operation on 
+                        the two disjoint sets of the edge's coordinates and add the edge's weight to the
+                        WeightEAsterix variable.
 
-    return AddedWeight
+"""
+
+## modification of Union-Find python implementaion from: https://yuminlee2.medium.com/union-find-algorithm-ffa9cd7d2dba
+## Credit author: Claire Lee
+## Original reference code compared int parent/root elements of disjoint sets, modifications to:
+##      - compare coordinates
+##      - return boolean for union operation
+##      - store value of self as well as parent (in the original reference code the index number was the value)
+class UnionFind:
+    def __init__(self, numOfElements, arrayOfElements):
+        self.parent = self.makeSet(numOfElements, arrayOfElements)
+        self.value = self.makeSet(numOfElements, arrayOfElements)
+        self.size = [1]*numOfElements
+        self.count = numOfElements
+    
+    def makeSet(self, numOfElements, arrayOfElements):
+        array = [x for x in range(numOfElements)]
+        for i in range(0, numOfElements):
+            array[i] = arrayOfElements[i]
+        return array
+
+    # Time: O(logn) | Space: O(1)
+    def find(self, coordinate):
+        while coordinate[2] != self.parent[coordinate[2]][2]:
+            #path compression
+            coordinateidx = coordinate[2]
+            self.parent[coordinateidx] = self.parent[self.parent[coordinateidx][2]]
+            coordinate = self.parent[coordinateidx]
+        return coordinate
+    
+    # Time: O(1) | Space: O(1)
+    def union(self, coordinate1, coordinate2):
+        root1 = self.find(coordinate1)
+        root2 = self.find(coordinate2)
+
+        # already in the same set
+        if root1 == root2:
+            return False
+
+        if self.size[root1[2]] > self.size[root2[2]]:
+            self.parent[root2[2]] = root1
+            self.size[root1[2]] += 1
+        else:
+            self.parent[root1[2]] = root2
+            self.size[root2[2]] += 1
         
+        self.count -= 1
 
+        return True
+
+
+# main function
 def minimum_cost_connecting_edges(input_file_path, output_file_path):
+
+# STEP 1 : Read the input file, extract coordinate and edge data
 
     with open(input_file_path, 'r') as file:
         # reading input files for coordinate point data in line 1
@@ -69,6 +110,7 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
             ArrayPointstxt = " "
             ArrayPointstxt+=line1
             ArrayPointstxt = ArrayPointstxt.strip()
+            ArrayPointstxt = ArrayPointstxt.replace(" ", "")
 
         # reading input files for E prime edge data in line 2
         line2 = file.readline()
@@ -76,11 +118,12 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
             ArrayEPrimetxt = " "
             ArrayEPrimetxt+=line2
             ArrayEPrimetxt = ArrayEPrimetxt.strip()
+            ArrayEPrimetxt = ArrayEPrimetxt.replace(" ", "")
 
     # taking a string containing coordinate point data and storing it in    
     # a matrix representation of array Points, with one collum for each of
-    # the two numbers of each coordinate, and another coolum to denote if 
-    # which connected component it is part of - if any.
+    # the two numbers of each coordinate, and a third collumn for the point's
+    # index number in ArrayPoints
     PointStringArray = re.findall('(\\-?\\d+,\\-?\\d+)', ArrayPointstxt)
     VNumVertices = ( ArrayPointstxt.count(",") // 2 ) + 1
     ArrayPoints = [[-1 for column in range(3)] for row in range(VNumVertices)]
@@ -88,29 +131,8 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
         CoordinateP = PointStringArray[p].split(',')
         ArrayPoints[p][0]= int(CoordinateP[0])
         ArrayPoints[p][1]= int(CoordinateP[1])
+        ArrayPoints[p][2]= p
 
-    if (line2 == "none"):
-        EPrimeNumElements = 0
-
-        ArrayEPrime = [[-1 for column in range(3)] for row in range(0)]
-    else:
-        # taking a string containing E prime edge data and storing it in    
-        # a matrix representation of array E Prime, with one collum for each
-        # of the two index numbers of each coordinate
-        EPrimeStringArray = re.findall('(\\-?\\d+,\\-?\\d+)', ArrayEPrimetxt)
-        EPrimeNumElements = ( ArrayEPrimetxt.count(",") // 2 ) +1
-        ArrayEPrime = [[-1 for column in range(3)] for row in range(EPrimeNumElements)]
-        for e in range(0, EPrimeNumElements):
-            CoordinateE = EPrimeStringArray[e].split(',')
-            ArrayEPrime[e][0]= int(CoordinateE[0])
-            ArrayEPrime[e][1]= int(CoordinateE[1])
-            XCoordinateOfA = ArrayPoints[ArrayEPrime[e][0] - 1][0]
-            XCoordinateOfB = ArrayPoints[ArrayEPrime[e][1] - 1][0]
-            YCoordinateOfA = ArrayPoints[ArrayEPrime[e][0] - 1][1]
-            YCoordinateOfB = ArrayPoints[ArrayEPrime[e][1] - 1][1]
-            ManhatanDistance = int(math.dist([XCoordinateOfA],[XCoordinateOfB]) + math.dist([YCoordinateOfA],[YCoordinateOfB]))
-            ArrayEPrime[e][2]= ManhatanDistance
-    print("ArrayEPrime", ArrayEPrime) 
 
     #Creating Class Edge to encapsulate each possible edge's coordinate and weight 
     class Edge: 
@@ -119,11 +141,40 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
            self.CoordinateB = CoordinateB
            self.Weight = Weight
 
-    # Calculating number of edges using know number of vertices
-    ENumElements = (VNumVertices * (VNumVertices - 1)) // 2
 
-    # Creating an array of Edges, filling in coordinate and weight data for each edge. O(E)
-    Edges = [-1 for element in range(ENumElements)]
+    if (ArrayEPrimetxt == "none"):
+        EPrimeNumElements = 0
+        EPrimeEdges = []
+
+    else:
+        # taking a string containing E prime edge data and storing it in    
+        # an array of edge structures
+        EPrimeStringArray = re.findall('(\\-?\\d+,\\-?\\d+)', ArrayEPrimetxt)
+        EPrimeNumElements = ( ArrayEPrimetxt.count(",") // 2 ) +1
+        EPrimeEdges = [-1 for edge in range(EPrimeNumElements)]
+
+        for e in range(0, EPrimeNumElements):
+            CoordinateE = EPrimeStringArray[e].split(',')
+            CoordinateAIdx = int(CoordinateE[0])-1
+            CoordinateBIdx = int(CoordinateE[1])-1
+            # filling in collums for coordinate data
+            XCoordinateOfA = ArrayPoints[CoordinateAIdx][0]
+            XCoordinateOfB = ArrayPoints[CoordinateBIdx][0]
+            YCoordinateOfA = ArrayPoints[CoordinateAIdx][1]
+            YCoordinateOfB = ArrayPoints[CoordinateBIdx][1]
+            # computing manhattan distance between points to store as weight
+            ManhatanDistance = int(math.dist([XCoordinateOfA],[XCoordinateOfB]) + math.dist([YCoordinateOfA],[YCoordinateOfB]))
+            # adding edge to array of E Prime Edges
+            EPrimeEdges[e]= Edge( ArrayPoints[CoordinateAIdx], ArrayPoints[CoordinateBIdx], ManhatanDistance )
+
+
+    # Calculating number of possible edges using know number of vertices
+    ENumEdges = (VNumVertices * (VNumVertices - 1)) // 2
+
+    # Creating a Sorted array of Edges, filling in coordinate and weight data for each edge. 
+    # binary search insert for each edge. building list of weights for biselect functionality. O(ElogE)
+    SortedEdgeWeights = []
+    SortedEdges = []
     i = 0
     for e in range(0, VNumVertices):
         for f in range((e+1), VNumVertices):
@@ -132,109 +183,42 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
             YCoordinateOfA = ArrayPoints[e][1]
             YCoordinateOfB = ArrayPoints[f][1]
             ManhatanDistance = int(math.dist([XCoordinateOfA],[XCoordinateOfB]) + math.dist([YCoordinateOfA],[YCoordinateOfB]))
-            # math.dist(ArrayPoints[x][0], ArrayPoints[y][0]) + math.dist(ArrayPoints[x][1], ArrayPoints[y][1])
-            Edges[i]= Edge( ArrayPoints[e], ArrayPoints[f], ManhatanDistance )
+            SortedEdgeWeights.insert(bisect_left(SortedEdgeWeights,ManhatanDistance), ManhatanDistance)
+            SortedEdges.insert(bisect_left(SortedEdgeWeights,ManhatanDistance), Edge( ArrayPoints[e], ArrayPoints[f], ManhatanDistance ))
             i = i + 1
-    
 
-    # Creating a sorted array of Edges with our exsisting array of Edges. O(ElogE)
-    SortedEdgeWeights = [Edges[0].Weight]
-    SortedEdges = [Edges[0]]
-    for i in range(1, ENumElements):
-        SortedEdgeWeights.insert(bisect_left(SortedEdgeWeights, Edges[i].Weight), Edges[i].Weight)
-        SortedEdges.insert(bisect_left(SortedEdgeWeights, Edges[i].Weight), Edges[i])
-
-    
-    # Creating a container to store connected components of our graph.
-    Forrest = []
-    NumTreesInForrest = 0
-
-    # Creating a variable to store the running weight of the connected componenets in our forrest
-    WeightEPrime = 0
-
-    TreeIdentifier = 0
-
-    # Filling out forrest in edge case where E Prime is empty
-    if (EPrimeNumElements == 0):
-        for i in range(0, VNumVertices):
-            ArrayPoints[i][2] = -1 * TreeIdentifier
-            Tree = [ArrayPoints[i]]
-            Forrest.insert(i, Tree)
-            NumTreesInForrest = NumTreesInForrest + 1
-            TreeIdentifier = TreeIdentifier + 1
-    
-    # Filling out forrest in standard case where E Prime is not empty by inserting every connected component from E Prime
-    elif (EPrimeNumElements > 0):
-
-        # visit each edge in E Prime and update its points' tree values accordingly
-        for i in range(0, EPrimeNumElements):
-
-            WeightEPrime = WeightEPrime + ArrayEPrime[i][2]
-            CoordinateNumA = ArrayEPrime[i][0] 
-            CoordinateNumB = ArrayEPrime[i][1]
-
-            #indices in Points Array
-            IndexA = ArrayEPrime[i][0] - 1
-            IndexB = ArrayEPrime[i][1] - 1
-
-            #if neither of the edge's points have been added to a tree, add them to a new tree
-            if( (ArrayPoints[IndexA][2] < 0) and (ArrayPoints[IndexB][2] < 0) ):
-
-                ArrayPoints[IndexA][2] = TreeIdentifier
-                ArrayPoints[IndexB][2] = TreeIdentifier
-                Tree = []
-                Tree.insert(0, ArrayPoints[IndexA])
-                Tree.insert(0, ArrayPoints[IndexB])
-                Forrest.insert(TreeIdentifier, Tree)
-                TreeIdentifier = TreeIdentifier + 1 
-                NumTreesInForrest = NumTreesInForrest + 1
-
-            # if the IndexA point has been added to a tree, but the IndexB point has not, add the IndexB point
-            # to the IndexA point's tree
-            elif( (ArrayPoints[IndexA][2] > -1) and (ArrayPoints[IndexB][2] < 0) ):
-                ArrayPoints[IndexB][2] = ArrayPoints[IndexA][2]
-                Forrest[ ArrayPoints[IndexA][2] ].insert(len(Forrest[ ArrayPoints[IndexA][2] ]), ArrayPoints[IndexB])
-
-            # if the IndexB point has been added to a tree, but the IndexA point has not, add the IndexA point 
-            # to the IndexB point's tree 
-            elif( (ArrayPoints[IndexA][2] < 0) and (ArrayPoints[IndexB][2] > -1) ):
-                ArrayPoints[IndexA][2] = ArrayPoints[IndexB][2]
-                Forrest[ ArrayPoints[IndexB][2] ].insert(len(Forrest[ ArrayPoints[IndexB][2] ]), ArrayPoints[IndexA])
-
-            #if the both of the edge's points have been added to different trees, merge the trees.
-            elif( ((ArrayPoints[IndexA][2] != -1) and (ArrayPoints[IndexB][2] != -1) ) and (ArrayPoints[IndexA][2] != ArrayPoints[IndexB][2]) ):
-
-                #keeping IndexA's TreeIdentifer, adding IndexB to IndexA's tree, removing IndexB from its own tree
-                BTreeID = ArrayPoints[IndexB][2] 
-                ArrayPoints[IndexB][2] = ArrayPoints[IndexA][2]
-                Forrest[ ArrayPoints[IndexA][2] ].insert(len(Forrest[ ArrayPoints[IndexA][2] ]), ArrayPoints[IndexB])
-                Forrest[ BTreeID ].remove(ArrayPoints[IndexB])
-
-                # for every element in IndexB's former tree, add to IndexA's tree, update the tree label, and remove from former tree
-                while ( len(Forrest[ BTreeID ]) > 0 ):
-                    Forrest[ BTreeID ][0][2] = ArrayPoints[IndexA][2]
-                    Forrest[ ArrayPoints[IndexA][2] ].insert(0, Forrest[ BTreeID ][0])
-                    Forrest[ BTreeID ].remove(Forrest[ BTreeID ][0])
-                    
-                #replacing IndexB's former tree with "-1" in the forrest, to signify that a tree no longer exsists at that index
-                Forrest[ BTreeID ] = -1
-                NumTreesInForrest = NumTreesInForrest - 1
-
-        # every vertex not reached by E Prime still has a tree identifier value of -1, add each of these not yet reached vertices
-        # to the forrest as their own connected components. 
-        for i in range(0, len(ArrayPoints)):
-            if (ArrayPoints[i][2] == -1):
-                ArrayPoints[i][2] = -1 * TreeIdentifier
-                Tree = [ArrayPoints[i]]
-                Forrest.insert(i, Tree)
-                NumTreesInForrest = NumTreesInForrest + 1
-                TreeIdentifier = TreeIdentifier + 1
-    
-    # now we have the connected components from E Prime, and the remaining vertices not reached by E Prime each as their own components
-    # from here we can implement Kruskal's Algorithm
-    print("Start Kruskals")
-    WeightEAsterix= Kruskals(ArrayPoints, TreeIdentifier, Forrest, NumTreesInForrest, SortedEdges)
+# End STEP 1.
+# We now have an array of coordinates, an array of all edges sorted by weight, and an array of edges from E Prime.
+# ArrayPoints, SortedEdges, and EPrimeEdges
             
+
+# STEP 2 :  Represent every coordinate in the array of coordinates (ArrayPoints) as a its own disjoint set. Create a
+#           variable (Forrest) to hold the UnionFind structure of all disjoint sets.
+    Forrest = UnionFind(VNumVertices, ArrayPoints)
+
+
+#Step 3:    Organize coordinates reached by E Prime edges (if any) into disjoint sets of coordinates, such that all 
+#           coordinates in the same set are connected by edges in E Prime.
+    for e in range(EPrimeNumElements):
+        Forrest.union(EPrimeEdges[e].CoordinateA, EPrimeEdges[e].CoordinateB)
+    
+            
+#Step 4:    Find edges that belong in E*, where E* is a subset of edges that will span all points in complement with E'.
+
+    # Create a variable (WeightEAsterix) to hold the cumulitive weight of all E* edges found. 
+    WeightEAsterix = 0
+
+    # For each edge, check if its two coordinates are in different sets
+    for e in range(ENumEdges):
+        # preform a union operation on the sets of each edge coordinate to union the sets if they are disjoint
+        # union will return True if they were disjoint and two sets were unioned
+        # union will return False if they were not disjoint and no two sets were unioned
+        Belongs = Forrest.union(SortedEdges[e].CoordinateA, SortedEdges[e].CoordinateB)
+        if (Belongs == True):
+            # If the edge's two coordinates were in different sets, consider the edge to be part E*.
+            # To represent that the edge is being included in E*, add the edge's weight to WeightEAsterix.
+            WeightEAsterix = WeightEAsterix + SortedEdges[e].Weight
+
     result = WeightEAsterix
 
     with open(output_file_path, 'w') as output_file:
