@@ -147,6 +147,7 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
             ArrayPointstxt = " "
             ArrayPointstxt+=line1
             ArrayPointstxt = ArrayPointstxt.strip()
+            ArrayPointstxt = ArrayPointstxt.replace(" ", "")
 
         # reading input files for E prime edge data in line 2
         line2 = file.readline()
@@ -154,19 +155,26 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
             ArrayEPrimetxt = " "
             ArrayEPrimetxt+=line2
             ArrayEPrimetxt = ArrayEPrimetxt.strip()
+            ArrayEPrimetxt = ArrayEPrimetxt.replace(" ", "")
 
     # taking a string containing coordinate point data and storing it in    
     # a matrix representation of array Points, with one collum for each of
     # the two numbers of each coordinate, and a third collumn for the point's
     # index number in ArrayPoints
     PointStringArray = re.findall('(\\-?\\d+,\\-?\\d+)', ArrayPointstxt)
+    print(ArrayPointstxt)
     VNumVertices = ( ArrayPointstxt.count(",") // 2 ) + 1
     ArrayPoints = [[-1 for column in range(3)] for row in range(VNumVertices)]
+    print("VNumVertices", VNumVertices)
     for p in range(0, VNumVertices):
+
+        # print("p in 0 to VNumVertices", p)
+        # print("PointStringArray", PointStringArray)
         CoordinateP = PointStringArray[p].split(',')
         ArrayPoints[p][0]= int(CoordinateP[0])
         ArrayPoints[p][1]= int(CoordinateP[1])
         ArrayPoints[p][2]= p
+        
 
 
     #Creating Class Edge to encapsulate each possible edge's coordinate and weight 
@@ -177,18 +185,19 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
            self.Weight = Weight
 
 
-    if (line2 == "none"):
+    if (ArrayEPrimetxt == "none"):
         EPrimeNumElements = 0
         EPrimeEdges = []
-
     else:
         # taking a string containing E prime edge data and storing it in    
         # an array of edge structures
         EPrimeStringArray = re.findall('(\\-?\\d+,\\-?\\d+)', ArrayEPrimetxt)
         EPrimeNumElements = ( ArrayEPrimetxt.count(",") // 2 ) +1
         EPrimeEdges = [-1 for edge in range(EPrimeNumElements)]
+        print(ArrayEPrimetxt)
 
         for e in range(0, EPrimeNumElements):
+            print("e in 0 to EPrimeNumElements: ", e)
             CoordinateE = EPrimeStringArray[e].split(',')
             CoordinateAIdx = int(CoordinateE[0])-1
             CoordinateBIdx = int(CoordinateE[1])-1

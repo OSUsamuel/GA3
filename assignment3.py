@@ -110,6 +110,7 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
             ArrayPointstxt = " "
             ArrayPointstxt+=line1
             ArrayPointstxt = ArrayPointstxt.strip()
+            ArrayPointstxt = ArrayPointstxt.replace(" ", "")
 
         # reading input files for E prime edge data in line 2
         line2 = file.readline()
@@ -117,6 +118,7 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
             ArrayEPrimetxt = " "
             ArrayEPrimetxt+=line2
             ArrayEPrimetxt = ArrayEPrimetxt.strip()
+            ArrayEPrimetxt = ArrayEPrimetxt.replace(" ", "")
 
     # taking a string containing coordinate point data and storing it in    
     # a matrix representation of array Points, with one collum for each of
@@ -140,7 +142,7 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
            self.Weight = Weight
 
 
-    if (line2 == "none"):
+    if (ArrayEPrimetxt == "none"):
         EPrimeNumElements = 0
         EPrimeEdges = []
 

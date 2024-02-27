@@ -26,6 +26,8 @@ feel free to update it yourself and push, or let me know and I will do it.
 
 """
 def main():
+
+    #to test samples from assignment description
     for i in range(1,5):
         input = "test_cases/GA3S{}.txt"
         output = "test_cases/output_GA3S{}.txt"
@@ -38,6 +40,35 @@ def main():
         open(output,"w+").close()
         minimum_cost_connecting_edges(input , output)
  
+        print("Ran in " + str(time() - start_time))
+
+    #to test input files from Canvas announcements
+    InputFileNumbers = [0, 4, 8, 12, 16]
+    for i in range(len(InputFileNumbers)):
+        
+        print("")
+        print("input",InputFileNumbers[i],".in")
+        input = "test_cases/input{}.in"
+        output = "test_cases/input{}actual.exp"
+        expectedoutputfile = "test_cases/input{}.exp"
+
+        input =input.format(str(InputFileNumbers[i]).zfill(1))
+        output = output.format(str(i).zfill(1))   
+        expectedoutputfile =expectedoutputfile.format(str(InputFileNumbers[i]).zfill(1))
+        
+        with open(expectedoutputfile, 'r') as file:
+            expectedoutput = file.readline().strip()
+    
+
+        start_time = time()
+        open(output,"w+").close()
+        minimum_cost_connecting_edges(input , output)
+
+        with open(output, 'r') as file:
+            actualoutput = file.readline().strip()
+            
+        print("expected output:", expectedoutput)
+        print("actual output:", actualoutput)
         print("Ran in " + str(time() - start_time))
 
 
