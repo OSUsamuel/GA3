@@ -331,21 +331,26 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
     # Create a variable (WeightEAsterix) to hold the cumulitive weight of all E* edges found. 
     WeightEAsterix = 0
 
-    # For each edge, check if its two coordinates are in different sets
-    for e in range(ENumEdges):
+    # While there are multiple trees/sets in the forrest, check the smallest unchecked edge of all possible edges to see
+    # if its two coordinates are in different sets.
+    NumberOfSets = Forrest.count
+    CurrEdgeIdx = 0
+    while(NumberOfSets > 1):
         # preform a union operation on the sets of each edge coordinate to union the sets if they are disjoint
         # union will return True if they were disjoint and two sets were unioned
         # union will return False if they were not disjoint and no two sets were unioned
-        Belongs = Forrest.union(SortedEdges[e].CoordinateA, SortedEdges[e].CoordinateB)
+        Belongs = Forrest.union(SortedEdges[CurrEdgeIdx].CoordinateA, SortedEdges[CurrEdgeIdx].CoordinateB)
         if (Belongs == True):
             # If the edge's two coordinates were in different sets, consider the edge to be part E*.
             # To represent that the edge is being included in E*, add the edge's weight to WeightEAsterix.
-            WeightEAsterix = WeightEAsterix + SortedEdges[e].Weight
-            print("     Found Edge (Coordinate)(Coordinate)[Weight]: ", SortedEdges[e].CoordinateA, SortedEdges[e].CoordinateB, " [", SortedEdges[e].Weight, "]")
+            WeightEAsterix = WeightEAsterix + SortedEdges[CurrEdgeIdx].Weight
+            NumberOfSets = NumberOfSets - 1
+            print("     Found Edge (Coordinate)(Coordinate)[Weight]: ", SortedEdges[CurrEdgeIdx].CoordinateA, SortedEdges[CurrEdgeIdx].CoordinateB, " [", SortedEdges[CurrEdgeIdx].Weight, "]")
             print("     New Weight of E*:", WeightEAsterix)
             print("     Forrest Updated with New E* Edge:")
             display_Forrest(Forrest)
             print("")
+        CurrEdgeIdx = CurrEdgeIdx + 1
 
 
     print("Weight of E* is:")

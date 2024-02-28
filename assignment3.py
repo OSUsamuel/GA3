@@ -10,7 +10,7 @@ How to use this python file from the terminal:
     Run the code directly in the terminal with the following command, where input_file.txt is the actual
     name of your input file and output_file.txt is the actual name of your output file.
     ** Please note that this command may need to be modified if your input or output files live in different
-    levels of the directory than the assignment3_vtests.py file. **
+    levels of the directory than the assignment3.py file. **
 
     python3 assignment3.py input_file.txt output_file.txt  
     
@@ -22,19 +22,18 @@ Abstract of Algorithm:
 
     Step 2)     Represent every coordinate in the array of coordinates (ArrayPoints) as a its own disjoint 
                 set. Create an variable (Forrest) to hold the UnionFind structure of all disjoint sets.
-    
                     
     Step 3)     Organize coordinates reached by E Prime edges (if any) into disjoint sets of coordinates, 
                 such that all coordinates in the same set are connected by edges in E Prime. 
                 To do this, iterate through the array of edges from E Prime (EPrimeEdges). 
                     -   For each edge, check if its two coordinates are in different sets by comparing the 
                         root coordinates of their disjoint sets. 
-                    -   If the edge's two coordinates are in different sets consider the edge to be part 
-                        E* preform a union operation on the two disjoint sets of the edge's coordinates, 
-                        to reflect that they are connected by an E' input edge.
+                    -   If the edge's two coordinates are in different sets preform a union operation on 
+                        the two disjoint sets of the edge's coordinates to reflect that they are connected 
+                        by an E' input edge.
     
-    Step 4)     Find edges that belong in E*, where E* is a subset of all edges that will span all 
-                coordinates in complement with E'. 
+    Step 4)     Find edges that belong in E*, where E* is a minimum weight subset of all edges that will 
+                span all coordinates in complement with E'. 
                 To do this, iterate through the sorted array of sorted edges (SortedEdges), starting with
                 the smallest element in SortedEdges, until all disjoint sets have been unioned into a single
                 set of all coordinates.
@@ -243,16 +242,21 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
     # Create a variable (WeightEAsterix) to hold the cumulitive weight of all E* edges found. 
     WeightEAsterix = 0
 
-    # For each edge, check if its two coordinates are in different sets
-    for e in range(ENumEdges):
+    # While there are multiple trees/sets in the forrest, check the smallest unchecked edge of all possible edges to see
+    # if its two coordinates are in different sets.
+    NumberOfSets = Forrest.count
+    CurrEdgeIdx = 0
+    while(NumberOfSets > 1):
         # preform a union operation on the sets of each edge coordinate to union the sets if they are disjoint
         # union will return True if they were disjoint and two sets were unioned
         # union will return False if they were not disjoint and no two sets were unioned
-        Belongs = Forrest.union(SortedEdges[e].CoordinateA, SortedEdges[e].CoordinateB)
+        Belongs = Forrest.union(SortedEdges[CurrEdgeIdx].CoordinateA, SortedEdges[CurrEdgeIdx].CoordinateB)
         if (Belongs == True):
             # If the edge's two coordinates were in different sets, consider the edge to be part E*.
             # To represent that the edge is being included in E*, add the edge's weight to WeightEAsterix.
-            WeightEAsterix = WeightEAsterix + SortedEdges[e].Weight
+            WeightEAsterix = WeightEAsterix + SortedEdges[CurrEdgeIdx].Weight
+            NumberOfSets = NumberOfSets - 1
+        CurrEdgeIdx = CurrEdgeIdx + 1
 
     result = WeightEAsterix
 
@@ -262,9 +266,10 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
     return result
 
 
-if len(sys.argv) != 3:
-    print("Usage: python script.py input_file_path output_file_path")
+if len(sys.argv) != 4:
+    print("Usage: python script.py input_file_path output_file_path integer_multipier")
 else:
     input_file_path = sys.argv[1]
     output_file_path = sys.argv[2]
-    print(minimum_cost_connecting_edges(input_file_path, output_file_path))
+    multipier = sys.argv[3]
+    print(minimum_cost_connecting_edges(input_file_path, output_file_path, multipier))
