@@ -55,20 +55,23 @@ def main():
         input =input.format(str(InputFileNumbers[i]).zfill(1))
         output = output.format(str(i).zfill(1))   
         expectedoutputfile =expectedoutputfile.format(str(InputFileNumbers[i]).zfill(1))
-        
-        with open(expectedoutputfile, 'r') as file:
-            expectedoutput = file.readline().strip()
-    
 
         start_time = time()
         open(output,"w+").close()
         minimum_cost_connecting_edges(input , output)
 
         with open(output, 'r') as file:
-            actualoutput = file.readline().strip()
+            actualoutput = file.readline()
+        
+        with open(expectedoutputfile, 'r') as file:
+            expectedoutput = file.readline()
             
-        print("expected output:", expectedoutput)
-        print("actual output:", actualoutput)
+        if (actualoutput == expectedoutput):
+            print("output matches exactly.")
+        else:
+            print("!! output content or format incorrect.")
+        print("expected output:", expectedoutput.strip())
+        print("actual output:", actualoutput.strip())
         print("Ran in " + str(time() - start_time))
 
 
