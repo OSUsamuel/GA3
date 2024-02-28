@@ -267,9 +267,8 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
 
 
 if len(sys.argv) != 4:
-    print("Usage: python script.py input_file_path output_file_path integer_multipier")
+    print("Usage: python script.py input_file_path output_file_path")
 else:
     input_file_path = sys.argv[1]
     output_file_path = sys.argv[2]
-    multipier = sys.argv[3]
-    print(minimum_cost_connecting_edges(input_file_path, output_file_path, multipier))
+    print(minimum_cost_connecting_edges(input_file_path, output_file_path))
