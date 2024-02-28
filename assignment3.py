@@ -86,6 +86,9 @@ class UnionFind:
         if root1 == root2:
             return False
 
+        # make root of smaller tree to be a child of the larger tree's root
+        # update the size of tree identified by the the retained root to be the sum of the sizes of the merged trees
+        # update the size of tree identified by the the smaller set's former root to be 0, since it is no longer a root
         if self.size[root1[2]] > self.size[root2[2]]:
             self.parent[root2[2]] = root1
             self.size[root1[2]] = self.size[root1[2]] + self.size[root2[2]]
