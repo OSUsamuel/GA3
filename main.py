@@ -37,7 +37,7 @@ def main():
         
         
         start_time = time()
-        open(output,"w+").close()
+        open(output,"w+").close()  #Creates new file if one doesn't exist
         minimum_cost_connecting_edges(input , output)
  
         print("Ran in " + str(time() - start_time))
