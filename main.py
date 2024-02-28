@@ -74,6 +74,17 @@ def main():
         print("actual output:", actualoutput.strip())
         print("Ran in " + str(time() - start_time))
 
+    #to self generated large input file
+    print("")
+    print("Self generated input file")
+    input = "test_cases/bigger_input.txt"
+    output = "test_cases/bigger_output.txt" 
+        
+    start_time = time()
+    open(output,"w+").close()  #Creates new file if one doesn't exist
+    minimum_cost_connecting_edges(input , output)
+    print("Ran in " + str(time() - start_time))
+
 
 if __name__ == "__main__":
     main()
