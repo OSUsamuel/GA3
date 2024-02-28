@@ -64,6 +64,7 @@ Abstract of Algorithm:
 ##      - compare coordinates
 ##      - return boolean for union operation
 ##      - store value of self as well as parent (in the original reference code the index number was the value)
+## allowable per professor, confirmed after lecture on 2/27/24
 class UnionFind:
     def __init__(self, numOfElements, arrayOfElements):
         self.parent = self.makeSet(numOfElements, arrayOfElements)
