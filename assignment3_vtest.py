@@ -188,6 +188,38 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
            self.CoordinateA = CoordinateA
            self.CoordinateB = CoordinateB
            self.Weight = Weight
+        # referenced StackOverflow to implement rich comparison operators. 
+        # https://stackoverflow.com/questions/1227121/compare-object-instances-for-equality-by-their-attributes
+        def __eq__(self, other): 
+            if not isinstance(other, Edge):
+                # don't attempt to compare against unrelated types
+                return NotImplemented
+            return (self.Weight == other.Weight)
+        def __lt__(self, other):
+            if not isinstance(other, Edge):
+                # don't attempt to compare against unrelated types
+                return NotImplemented
+            return (self.Weight < other.Weight)
+        def __le__(self, other):
+            if not isinstance(other, Edge):
+                # don't attempt to compare against unrelated types
+                return NotImplemented
+            return (self.Weight <= other.Weight)
+        def __ne__(self, other):
+            if not isinstance(other, Edge):
+                # don't attempt to compare against unrelated types
+                return NotImplemented
+            return (self.Weight != other.Weight)
+        def __gt__(self, other):
+            if not isinstance(other, Edge):
+                # don't attempt to compare against unrelated types
+                return NotImplemented
+            return (self.Weight > other.Weight)
+        def __ge__(self, other):
+            if not isinstance(other, Edge):
+                # don't attempt to compare against unrelated types
+                return NotImplemented
+            return (self.Weight >= other.Weight)
 
 
     if (ArrayEPrimetxt == "none"):
@@ -221,7 +253,7 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
     ENumEdges = (VNumVertices * (VNumVertices - 1)) // 2
 
     # Creating a Sorted array of Edges, filling in coordinate and weight data for each edge. 
-    # binary search insert for each edge. building list of weights for biselect functionality. O(ElogE)
+    # O(E) to build unsorted list. O(ElogE) to sort list. Lower term of O(E) dropped, O(ElogE) overall.
     SortedEdgeWeights = []
     SortedEdges = []
     i = 0
@@ -232,9 +264,9 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
             YCoordinateOfA = ArrayPoints[e][1]
             YCoordinateOfB = ArrayPoints[f][1]
             ManhatanDistance = int(math.dist([XCoordinateOfA],[XCoordinateOfB]) + math.dist([YCoordinateOfA],[YCoordinateOfB]))
-            SortedEdgeWeights.insert(bisect_left(SortedEdgeWeights,ManhatanDistance), ManhatanDistance)
-            SortedEdges.insert(bisect_left(SortedEdgeWeights,ManhatanDistance), Edge( ArrayPoints[e], ArrayPoints[f], ManhatanDistance ))
+            SortedEdges.insert(i, Edge( ArrayPoints[e], ArrayPoints[f], ManhatanDistance ))
             i = i + 1
+    SortedEdges.sort()
 
     print("     Array Points [x-index, y-index, index_within_array_points]:")
     print("")
