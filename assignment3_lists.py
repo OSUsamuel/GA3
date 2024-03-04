@@ -3,8 +3,8 @@ import re
 import sys
 from bisect import bisect_left
 
-def display_edge(EdgeClassObject):
-    print("          Edge -- (CoordinateA)(CoordinateB)[Weight]: ", EdgeClassObject.CoordinateA, EdgeClassObject.CoordinateB, " [", EdgeClassObject.Weight, "]")
+# def display_edge(EdgeClassObject):
+    # print("          Edge -- (CoordinateA)(CoordinateB)[Weight]: ", EdgeClassObject.CoordinateA, EdgeClassObject.CoordinateB, " [", EdgeClassObject.Weight, "]")
 
 
 def Kruskals(ArrayPoints, TreeIdentifier, Forrest, NumTreesInForrest, SortedEdges):
@@ -72,14 +72,14 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
         if line1:
             ArrayPointstxt = " "
             ArrayPointstxt+=line1
-            ArrayPointstxt = ArrayPointstxt.strip()
+            ArrayPointstxt = ArrayPointstxt.strip().replace(" ", "")
 
         # reading input files for E prime edge data in line 2
         line2 = file.readline()
         if line2:
             ArrayEPrimetxt = " "
             ArrayEPrimetxt+=line2
-            ArrayEPrimetxt = ArrayEPrimetxt.strip()
+            ArrayEPrimetxt = ArrayEPrimetxt.strip().replace(" ", "")
 
     # taking a string containing coordinate point data and storing it in    
     # a matrix representation of array Points, with one collum for each of
@@ -92,8 +92,7 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
         CoordinateP = PointStringArray[p].split(',')
         ArrayPoints[p][0]= int(CoordinateP[0])
         ArrayPoints[p][1]= int(CoordinateP[1])
-
-    if (line2 == "none"):
+    if (ArrayEPrimetxt == "none"):
         EPrimeNumElements = 0
 
         ArrayEPrime = [[-1 for column in range(3)] for row in range(0)]
@@ -114,7 +113,7 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
             YCoordinateOfB = ArrayPoints[ArrayEPrime[e][1] - 1][1]
             ManhatanDistance = int(math.dist([XCoordinateOfA],[XCoordinateOfB]) + math.dist([YCoordinateOfA],[YCoordinateOfB]))
             ArrayEPrime[e][2]= ManhatanDistance
-    print("ArrayEPrime", ArrayEPrime) 
+    # print("ArrayEPrime", ArrayEPrime) 
 
     #Creating Class Edge to encapsulate each possible edge's coordinate and weight 
     class Edge: 
@@ -148,8 +147,8 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
         SortedEdgeWeights.insert(bisect_left(SortedEdgeWeights, Edges[i].Weight), Edges[i].Weight)
         SortedEdges.insert(bisect_left(SortedEdgeWeights, Edges[i].Weight), Edges[i])
 
-    for e in range(len(SortedEdges)):
-        display_edge(SortedEdges[e])
+    # for e in range(len(SortedEdges)):
+    #     display_edge(SortedEdges[e])
     
     # Creating a container to store connected components of our graph.
     Forrest = []
@@ -238,7 +237,7 @@ def minimum_cost_connecting_edges(input_file_path, output_file_path):
     
     # now we have the connected components from E Prime, and the remaining vertices not reached by E Prime each as their own components
     # from here we can implement Kruskal's Algorithm
-    print("Start Kruskals")
+    # print("Start Kruskals")
     WeightEAsterix= Kruskals(ArrayPoints, TreeIdentifier, Forrest, NumTreesInForrest, SortedEdges)
             
     result = WeightEAsterix
