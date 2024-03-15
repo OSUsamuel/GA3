@@ -43,18 +43,17 @@ def main():
         print("Ran in " + str(time() - start_time))
 
     #to test input files from Canvas announcements
-    InputFileNumbers = [0, 4, 8, 12, 16]
-    for i in range(len(InputFileNumbers)):
+    for i in range(0,20):
         
         print("")
-        print("input",InputFileNumbers[i],".in")
+        print("input",i,".in")
         input = "test_cases/input{}.in"
         output = "test_cases/input{}actual.exp"
         expectedoutputfile = "test_cases/input{}.exp"
 
-        input =input.format(str(InputFileNumbers[i]).zfill(1))
+        input =input.format(str(i).zfill(1))
         output = output.format(str(i).zfill(1))   
-        expectedoutputfile =expectedoutputfile.format(str(InputFileNumbers[i]).zfill(1))
+        expectedoutputfile =expectedoutputfile.format(str(i).zfill(1))
 
         start_time = time()
         open(output,"w+").close()
